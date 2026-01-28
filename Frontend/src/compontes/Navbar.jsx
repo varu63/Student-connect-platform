@@ -22,9 +22,11 @@ const Navbar = () => {
               Projects
             </Link>
             <Link to="/discuss" className="text-gray-600 hover:text-indigo-600 font-medium">Discussions</Link>
+            <Link to="/mentors" className="text-gray-600 hover:text-indigo-600 font-medium">Mentors</Link>
             <Link to="/signup" className="bg-indigo-600 text-white px-5 py-2 rounded-full font-semibold hover:bg-indigo-700 transition">
               Get Started
             </Link>
+
           </div>
 
           {/* Mobile Button */}
