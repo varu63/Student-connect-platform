@@ -19,7 +19,9 @@ from django.urls import path,include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-     path("", include("apps.home.urls")),
+    path("", include("apps.home.urls")),
+    path('api/accounts/', include('apps.accounts.urls')),
+
 ]
 
 # the name : bull and password :q1w2e3r4@

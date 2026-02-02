@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "corsheaders",
     "apps.home.apps.HomeConfig",
+    "apps.accounts.apps.AccountsConfig",
     
 ]
 
@@ -54,6 +55,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+AUTH_USER_MODEL = 'accounts.User'
+
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
