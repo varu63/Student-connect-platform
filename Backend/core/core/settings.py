@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "apps.home.apps.HomeConfig",
     "apps.accounts.apps.AccountsConfig",
+    "apps.projects.apps.ProjectsConfig",
     
 ]
 

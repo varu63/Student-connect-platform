@@ -13,7 +13,7 @@ const LoginPage =() => {
     
     try {
       // 1. Send data to your Django Backend
-      const response = await fetch("http://localhost:8000/api/login/", {
+      const response = await fetch("http://localhost:8000/accounts/login/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -30,8 +30,8 @@ const LoginPage =() => {
       } else {
         alert(data.message); // e.g., "Invalid Login Credentials!"
       }
-    } catch (error) {
-      alert("Cannot connect to server. Make sure Django is running.");
+    } catch (e) {
+      alert("Cannot connect to server. Make sure Django is running.",e);
     }
   };
 

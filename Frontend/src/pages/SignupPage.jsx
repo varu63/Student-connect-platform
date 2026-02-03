@@ -24,7 +24,7 @@ const handleSubmit = async (e) => {
   };
 
   const response = await fetch(
-    "http://localhost:8000/Authentication/register/",
+    "http://localhost:8000/accounts/signup/",
     {
       method: "POST",
       headers: {
