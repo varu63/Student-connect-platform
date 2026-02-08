@@ -22,7 +22,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def validate_email(self, value):
         # optional but smart: restrict to university email
-        if not value.endswith(".edu"):
+        if not value.endswith(".com"):
             raise serializers.ValidationError(
                 "Only university email addresses are allowed."
             )

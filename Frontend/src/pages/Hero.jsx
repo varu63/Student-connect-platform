@@ -57,7 +57,7 @@ const LandingPage = () => {
           </p>
           <div className="flex gap-4 justify-center">
             <button onClick={() => navigate("/signup")} className="bg-indigo-600 text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-indigo-700 transition shadow-xl">Get Started</button>
-            <button className="bg-white border border-gray-200 px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-50 transition">View Projects</button>
+            <button  onClick = {() => navigate("/projects")}className="bg-white border border-gray-200 px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-50 transition">View Projects</button>
             <button
               onClick={() => navigate("/mentors")}
               className="bg-white border border-gray-200 px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-50 transition"

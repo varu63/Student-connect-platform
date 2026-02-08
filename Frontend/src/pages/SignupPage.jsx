@@ -6,36 +6,51 @@ import { User, Mail, Lock, Code, ArrowRight, Check } from 'lucide-react';
 const SignupPage = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    fullName: '',
+    full_name: '',
     email: '',
     password: '',
     major: '',
-    primarySkill: ''
+    primary_skill: ''
   });
 
 const handleSubmit = async (e) => {
   e.preventDefault();
 
+  // Ensure keys match exactly what the RegisterSerializer expects
   const signupData = {
-    name: formData.fullName,
+    full_name: formData.full_name,
     email: formData.email,
     password: formData.password,
-    primary_skill: formData.primarySkill,
+    primary_skill: formData.primary_skill,
   };
 
-  const response = await fetch(
-    "http://localhost:8000/accounts/signup/",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(signupData),
-    }
-  );
+  try {
+    const response = await fetch(
+      "http://localhost:8000/accounts/signup/",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(signupData),
+      }
+    );
 
-  const data = await response.json();
-  console.log(data);
+    if (response.ok) {
+      // SUCCESS: Status 201 Created
+      console.log("Signup successful!");
+      alert("Account created! Redirecting to login...");
+      navigate("/accounts/login"); // This sends the user back to login
+    } else {
+      // FAILURE: Status 400 or other
+      const errorData = await response.json();
+      console.error("Signup failed:", errorData);
+      alert("Error: " + JSON.stringify(errorData));
+    }
+  } catch (error) {
+    console.error("Network error:", error);
+    alert("Could not connect to the server.");
+  }
 };
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-6 py-12">
@@ -61,7 +76,7 @@ const handleSubmit = async (e) => {
                 required
                 className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition"
                 placeholder="John Doe"
-                onChange={(e) => setFormData({...formData, fullName: e.target.value})}
+                onChange={(e) => setFormData({...formData, full_name: e.target.value})}
               />
             </div>
           </div>
@@ -89,7 +104,7 @@ const handleSubmit = async (e) => {
                 <Code className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                 <select 
                   className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none appearance-none"
-                  onChange={(e) => setFormData({...formData, primarySkill: e.target.value})}
+                  onChange={(e) => setFormData({...formData, primary_skill: e.target.value})}
                 >
                   <option value="React">React</option>
                   <option value="Python">Python</option>
@@ -134,7 +149,7 @@ const handleSubmit = async (e) => {
         </form>
 
         <p className="text-center mt-8 text-sm text-gray-500">
-          Already have an account? <button onClick={() => navigate("/login")} className="text-indigo-600 font-bold hover:underline">Log in</button>
+          Already have an account? <button onClick={() => navigate("/accounts/login")} className="text-indigo-600 font-bold hover:underline">Log in</button>
         </p>
       </motion.div>
     </div>

@@ -1,29 +1,64 @@
-import React, { useState } from 'react';
-import { Search, BookOpen, Code, BarChart } from 'lucide-react';
+
+
+
+// const ALL_PROJECTS = [
+//   { id: 1, title: "AI Study Assistant", tech: "Python", difficulty: "Hard", description: "A machine learning tool to summarize lecture notes." },
+//   { id: 2, title: "Portfolio Builder", tech: "React", difficulty: "Easy", description: "Drag-and-drop website builder for students." },
+//   { id: 3, title: "Banking System", tech: "Java", difficulty: "Medium", description: "Secure backend for managing student transactions." },
+//   { id: 4, title: "Game Engine", tech: "C++", difficulty: "Hard", description: "Physics-based 2D engine for indie developers." },
+//   { id: 5, title: "Task Manager", tech: "React", difficulty: "Medium", description: "Real-time collaborative task board." },
+// ];
+
+import React, { useState, useEffect } from 'react';
+import { Search, BookOpen, Code, BarChart, ChevronLeft, ChevronRight } from 'lucide-react';
 import Navbar from '../compontes/Navbar';
 import Footer from '../compontes/Footer';
 
-
-
-const ALL_PROJECTS = [
-  { id: 1, title: "AI Study Assistant", tech: "Python", difficulty: "Hard", description: "A machine learning tool to summarize lecture notes." },
-  { id: 2, title: "Portfolio Builder", tech: "React", difficulty: "Easy", description: "Drag-and-drop website builder for students." },
-  { id: 3, title: "Banking System", tech: "Java", difficulty: "Medium", description: "Secure backend for managing student transactions." },
-  { id: 4, title: "Game Engine", tech: "C++", difficulty: "Hard", description: "Physics-based 2D engine for indie developers." },
-  { id: 5, title: "Task Manager", tech: "React", difficulty: "Medium", description: "Real-time collaborative task board." },
-];
-
 const Projects = () => {
+  // State for Data
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
+  // State for Pagination & Filtering
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasNext, setHasNext] = useState(false);
+  const [hasPrev, setHasPrev] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTech, setActiveTech] = useState("All");
 
   const technologies = ["All", "React", "Python", "Java", "C++"];
 
-  const filteredProjects = ALL_PROJECTS.filter(project => {
-    const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesTech = activeTech === "All" || project.tech === activeTech;
-    return matchesSearch && matchesTech;
-  });
+  // Fetch data whenever page, tech, or search changes
+  useEffect(() => {
+    fetchProjects();
+  }, [currentPage, activeTech, searchTerm]);
+
+  const fetchProjects = async () => {
+    setLoading(true);
+    try {
+      // Build URL with query params for DRF
+      let url = `http://localhost:8000/projects/?page=${currentPage}`;
+      
+      if (activeTech !== "All") {
+        url += `&tech=${activeTech}`;
+      }
+      if (searchTerm) {
+        url += `&search=${searchTerm}`;
+      }
+
+      const response = await fetch(url);
+      const data = await response.json();
+
+      // Django Rest Framework pagination returns an object with 'results'
+      setProjects(data.results || []);
+      setHasNext(!!data.next);
+      setHasPrev(!!data.previous);
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Difficulty Color Helper
   const getDifficultyColor = (level) => {
@@ -34,7 +69,7 @@ const Projects = () => {
 
   return (
     <section className="py-20 px-6 bg-gray-50 min-h-screen">
-      <Navbar/>
+      <Navbar />
       <div className="max-w-7xl mx-auto">
         
         {/* --- Heading --- */}
@@ -53,7 +88,10 @@ const Projects = () => {
               type="text"
               placeholder="Search project names..."
               className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none transition"
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1); // Reset to page 1 on search
+              }}
             />
           </div>
 
@@ -61,7 +99,10 @@ const Projects = () => {
             {technologies.map(tech => (
               <button
                 key={tech}
-                onClick={() => setActiveTech(tech)}
+                onClick={() => {
+                  setActiveTech(tech);
+                  setCurrentPage(1); // Reset to page 1 on filter change
+                }}
                 className={`px-6 py-2 rounded-full font-semibold text-sm transition-all ${
                   activeTech === tech 
                   ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200" 
@@ -74,56 +115,83 @@ const Projects = () => {
           </div>
         </div>
 
-        {/* --- Project Grid (The "Books") --- */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {filteredProjects.map(project => (
-            <div 
-              key={project.id}
-              className="group bg-white rounded-2xl p-6 border-b-8 border-indigo-600 shadow-md hover:shadow-2xl hover:-translate-y-2 transition-all duration-300"
-            >
-              {/* Book Icon/Visual */}
-              <div className="w-12 h-16 bg-indigo-50 rounded-r-lg border-l-4 border-indigo-600 mb-6 flex items-center justify-center group-hover:bg-indigo-600 transition-colors">
-                <BookOpen size={24} className="text-indigo-600 group-hover:text-white" />
-              </div>
+        {/* --- Project Grid --- */}
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              {projects.map(project => (
+                <div 
+                  key={project.id}
+                  className="group bg-white rounded-2xl p-6 border-b-8 border-indigo-600 shadow-md hover:shadow-2xl hover:-translate-y-2 transition-all duration-300"
+                >
+                  <div className="w-12 h-16 bg-indigo-50 rounded-r-lg border-l-4 border-indigo-600 mb-6 flex items-center justify-center group-hover:bg-indigo-600 transition-colors">
+                    <BookOpen size={24} className="text-indigo-600 group-hover:text-white" />
+                  </div>
 
-              <h3 className="text-xl font-bold text-gray-900 mb-2">{project.title}</h3>
-              <p className="text-gray-500 text-sm mb-6 line-clamp-2">{project.description}</p>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">{project.title}</h3>
+                  <p className="text-gray-500 text-sm mb-6 line-clamp-2">{project.description}</p>
 
-              {/* Tags */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-1 text-xs font-bold text-gray-400 uppercase">
-                    <Code size={14} /> Tech
-                  </span>
-                  <span className="text-xs font-bold text-indigo-600">{project.tech}</span>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="flex items-center gap-1 text-xs font-bold text-gray-400 uppercase">
+                        <Code size={14} /> Tech
+                      </span>
+                      <span className="text-xs font-bold text-indigo-600">{project.tech}</span>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <span className="flex items-center gap-1 text-xs font-bold text-gray-400 uppercase">
+                        <BarChart size={14} /> Difficulty
+                      </span>
+                      <span className={`text-[10px] px-2 py-1 rounded-full font-bold uppercase tracking-wider ${getDifficultyColor(project.difficulty)}`}>
+                        {project.difficulty}
+                      </span>
+                    </div>
+                  </div>
+
+                  <button className="w-full mt-8 py-3 bg-gray-900 text-white rounded-xl font-bold text-sm hover:bg-indigo-600 transition">
+                    Read Discussion
+                  </button>
                 </div>
-                
-                <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-1 text-xs font-bold text-gray-400 uppercase">
-                    <BarChart size={14} /> Difficulty
-                  </span>
-                  <span className={`text-[10px] px-2 py-1 rounded-full font-bold uppercase tracking-wider ${getDifficultyColor(project.difficulty)}`}>
-                    {project.difficulty}
-                  </span>
-                </div>
-              </div>
-
-              <button 
-            
-              className="w-full mt-8 py-3 bg-gray-900 text-white rounded-xl font-bold text-sm hover:bg-indigo-600 transition">
-                Read Discussion
-              </button>
+              ))}
             </div>
-          ))}
-        </div>
 
-        {filteredProjects.length === 0 && (
+            {/* --- Pagination UI --- */}
+            {projects.length > 0 && (
+              <div className="flex justify-center items-center gap-6 mt-16">
+                <button 
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={!hasPrev}
+                  className="p-2 rounded-full border border-gray-200 bg-white hover:bg-gray-100 disabled:opacity-30 transition"
+                >
+                  <ChevronLeft size={24} />
+                </button>
+                
+                <span className="font-bold text-gray-700">Page {currentPage}</span>
+
+                <button 
+                  onClick={() => setCurrentPage(prev => prev + 1)}
+                  disabled={!hasNext}
+                  className="p-2 rounded-full border border-gray-200 bg-white hover:bg-gray-100 disabled:opacity-30 transition"
+                >
+                  <ChevronRight size={24} />
+                </button>
+              </div>
+            )}
+          </>
+        )}
+
+        {!loading && projects.length === 0 && (
           <div className="text-center py-20 text-gray-400">
             No projects found matching your filters.
           </div>
         )}
       </div>
-      <Footer/>
+      <Footer />
     </section>
   );
 };

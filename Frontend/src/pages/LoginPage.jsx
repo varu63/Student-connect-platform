@@ -8,32 +8,41 @@ const LoginPage =() => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    try {
-      // 1. Send data to your Django Backend
-      const response = await fetch("http://localhost:8000/accounts/login/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-      const data = await response.json();
+  try {
+    const response = await fetch("http://localhost:8000/accounts/login/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: email,   // MUST be username
+        password: password,
+      }),
+    });
 
-      if (data.success) {
-        // 2. Save user info so the app knows you are logged in
-        localStorage.setItem("user", JSON.stringify(data.user));
-        
-        // 3. Go to the dashboard/discuss page
-        navigate("/discuss");
-      } else {
-        alert(data.message); // e.g., "Invalid Login Credentials!"
-      }
-    } catch (e) {
-      alert("Cannot connect to server. Make sure Django is running.",e);
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.detail || "Login failed");
+      return;
     }
-  };
+
+    // Save tokens
+    localStorage.setItem("access", data.access);
+    localStorage.setItem("refresh", data.refresh);
+
+    navigate("/discuss");
+
+  } catch (err) {
+    console.error(err);
+    alert("Server error");
+  }
+};
+
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-6 py-12">
@@ -52,7 +61,7 @@ const LoginPage =() => {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit}  className="space-y-6">
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-2">Email Address</label>
             <div className="relative">
@@ -109,7 +118,7 @@ const LoginPage =() => {
 
         {/* Footer */}
         <p className="text-center mt-8 text-sm text-gray-500">
-          New here? <button onClick={() => navigate("/signup")} className="text-indigo-600 font-bold hover:underline">Create an account</button>
+          New here? <button onClick={() => navigate("/accounts/signup")} className="text-indigo-600 font-bold hover:underline">Create an account</button>
         </p>
       </motion.div>
     </div>
