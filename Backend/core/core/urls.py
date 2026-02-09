@@ -20,11 +20,9 @@ from django.urls import path,include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("", include("apps.home.urls")),
-    path('accounts/', include('apps.accounts.urls')),
     path("projects/", include("apps.projects.urls")),
-
-    
-
+    path('accounts/', include('apps.accounts.urls')),
+    path('payments/', include('apps.payments.urls')),
 ]
 
-# the name : bull and password :q1w2e3r4@
+#  password :q1w2e3r4@

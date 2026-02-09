@@ -28,6 +28,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+RAZORPAY_KEY_ID = "your_key_here"
+RAZORPAY_KEY_SECRET = "your_secret_here"
+
 
 # Application definition
 
@@ -43,6 +46,7 @@ INSTALLED_APPS = [
     "apps.home.apps.HomeConfig",
     "apps.accounts.apps.AccountsConfig",
     "apps.projects.apps.ProjectsConfig",
+    "apps.payments.apps.PaymentsConfig",
     
 ]
 

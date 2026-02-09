@@ -37,7 +37,8 @@ const Navbar = () => {
           <div className="hidden md:flex items-center gap-8">
             <Link to="/" className="text-gray-600 font-medium hover:text-indigo-600 transition">Home</Link>
             <Link to="/projects" className="text-gray-600 font-medium hover:text-indigo-600 transition">Projects</Link>
-            <Link to="/discuss" className="text-gray-600 font-medium hover:text-indigo-600 transition">Discussions</Link>
+            <Link to="/premium" className="text-gray-600 font-medium hover:text-indigo-600 transition">Premium</Link>
+            <Link to="/mentors" className="text-gray-600 font-medium hover:text-indigo-600 transition">Mentors</Link>
 
             {/* CONDITIONAL RENDERING STARTS HERE */}
             {isLoggedIn ? (
