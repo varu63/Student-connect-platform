@@ -1,127 +1,236 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Send, Users, Code } from "lucide-react";
+import { ArrowLeft, Send } from "lucide-react";
 
-const ProjectDetail = () => {
+const API = "http://localhost:8000";
+
+export default function ProjectDetail() {
+
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // In a real app, you'd fetch this from an API using the ID
+  const [project, setProject] = useState(null);
+  const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState("");
-  const [comments, setComments] = useState([
-    { id: 1, user: "Sarah", text: "This looks awesome! Do you need a designer?", date: "2h ago" },
-    { id: 2, user: "Mike", text: "I have experience with Python/Django, would love to help.", date: "1h ago" },
-  ]);
 
-  // Mock data - usually fetched based on 'id'
-  const project = {
-    id: id,
-    title: id === "1" ? "AI Resume Analyzer" : id === "2" ? "Campus Event Platform" : "Study Group Matcher",
-    description: "Building an AI tool that reviews resumes and suggests improvements using NLP and modern web frameworks.",
-    owner: "Alex",
-    tech: ["Python", "Django", "React"],
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  /* ---------------- Load Project + Comments ---------------- */
+
+  useEffect(() => {
+    loadData();
+  }, [id]);
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+
+      // Fetch project
+      const projectRes = await fetch(`${API}/projects/${id}/`);
+      if (!projectRes.ok) throw new Error("Project not found");
+
+      const projectData = await projectRes.json();
+      setProject(projectData);
+
+      // Fetch comments
+      const commentRes = await fetch(
+        `${API}/comments/?project=${id}`
+      );
+
+      const commentData = await commentRes.json();
+      setComments(commentData.results || []);
+
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load project");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleAddComment = (e) => {
+  /* ---------------- Add Comment ---------------- */
+
+  const handleAddComment = async (e) => {
     e.preventDefault();
+
     if (!commentText.trim()) return;
-    
-    const newComment = {
-      id: comments.length + 1,
-      user: "You", // Mocking current user
-      text: commentText,
-      date: "Just now"
-    };
-    
-    setComments([...comments, newComment]);
-    setCommentText("");
+
+    try {
+      const res = await fetch(`${API}/comments/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          project: id,
+          user: "Varun",   // Later: from auth
+          text: commentText,
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.text();
+        console.error(err);
+        throw new Error("Save failed");
+      }
+
+      const newComment = await res.json();
+
+      // Add new comment on top
+      setComments([newComment, ...comments]);
+
+      setCommentText("");
+
+    } catch (err) {
+      console.error("Comment error:", err);
+      alert("Comment not saved");
+    }
   };
+
+  /* ---------------- Loading ---------------- */
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex justify-center items-center">
+        Loading...
+      </div>
+    );
+  }
+
+  /* ---------------- Error ---------------- */
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        <p className="text-red-500">{error}</p>
+
+        <button
+          onClick={() => navigate(-1)}
+          className="mt-4 bg-indigo-600 text-white px-4 py-2 rounded"
+        >
+          Go Back
+        </button>
+      </div>
+    );
+  }
+
+  /* ---------------- UI ---------------- */
 
   return (
     <div className="min-h-screen bg-gray-50 pt-20 px-4">
+
       <div className="max-w-3xl mx-auto">
-        {/* Back Button */}
-        <button 
+
+        {/* Back */}
+        <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-gray-600 hover:text-indigo-600 mb-6 transition"
+          className="flex items-center gap-2 mb-6"
         >
-          <ArrowLeft size={20} /> Back to Projects
+          <ArrowLeft size={20} /> Back
         </button>
 
-        {/* Project Details */}
-        <div className="bg-white rounded-2xl border shadow-sm p-8 mb-8">
-          <div className="flex justify-between items-start mb-4">
-            <h1 className="text-3xl font-bold text-gray-900">{project.title}</h1>
-            <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
-              Active
-            </span>
-          </div>
+        {/* Project */}
+        <div className="bg-white p-8 rounded-xl border mb-8">
 
-          <p className="text-gray-600 text-lg mb-6 leading-relaxed">
+          <h1 className="text-3xl font-bold mb-3">
+            {project.title}
+          </h1>
+
+          <p className="mb-5 text-gray-600">
             {project.description}
           </p>
 
-          <div className="flex flex-wrap gap-3 mb-8">
-            {project.tech.map((t) => (
-              <span key={t} className="bg-gray-100 text-gray-700 px-3 py-1 rounded-md text-sm font-semibold">
+          {/* Tech */}
+          <div className="flex flex-wrap gap-2 mb-4">
+            {project.tech?.map((t) => (
+              <span
+                key={t}
+                className="bg-gray-100 px-3 py-1 rounded text-sm"
+              >
                 {t}
               </span>
             ))}
           </div>
 
-          <div className="flex items-center gap-4 pt-6 border-t border-gray-100">
-            <div className="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold">
-              {project.owner[0]}
-            </div>
-            <div>
-              <p className="text-sm font-bold text-gray-900">{project.owner}</p>
-              <p className="text-xs text-gray-500">Project Lead</p>
-            </div>
-          </div>
+          <p className="text-sm text-gray-500">
+            Difficulty: {project.difficulty}
+          </p>
+
         </div>
 
-        {/* Discussion Section */}
-        <div className="bg-white rounded-2xl border shadow-sm p-8">
-          <h3 className="text-xl font-bold text-gray-900 mb-6">Discussion ({comments.length})</h3>
-          
-          {/* Comment Input */}
-          <form onSubmit={handleAddComment} className="mb-8">
+        {/* Comments */}
+        <div className="bg-white p-8 rounded-xl border">
+
+          <h3 className="text-xl font-bold mb-5">
+            Discussion ({comments.length})
+          </h3>
+
+          {/* Add */}
+          <form onSubmit={handleAddComment} className="mb-6">
+
             <div className="relative">
+
               <textarea
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
-                placeholder="Ask a question or offer to help..."
-                className="w-full border rounded-xl p-4 pr-12 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
+                className="w-full border rounded-xl p-4 pr-12"
+                placeholder="Write comment..."
                 rows="3"
               />
-              <button 
+
+              <button
                 type="submit"
-                className="absolute bottom-4 right-4 bg-indigo-600 text-white p-2 rounded-lg hover:bg-indigo-700 transition"
+                className="absolute bottom-3 right-3 bg-indigo-600 text-white p-2 rounded"
               >
                 <Send size={18} />
               </button>
+
             </div>
+
           </form>
 
-          {/* Comments List */}
-          <div className="space-y-6">
-            {comments.map((comment) => (
-              <div key={comment.id} className="flex gap-4">
-                <div className="w-8 h-8 bg-gray-200 rounded-full flex-shrink-0" />
+          {/* List */}
+          <div className="space-y-4">
+
+            {comments.length === 0 && (
+              <p className="text-gray-400">
+                No comments yet.
+              </p>
+            )}
+
+            {comments.map((c) => (
+              <div key={c.id} className="flex gap-3">
+
+                <div className="w-8 h-8 bg-gray-200 rounded-full" />
+
                 <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-gray-900">{comment.user}</span>
-                    <span className="text-xs text-gray-400">{comment.date}</span>
+
+                  <div className="flex gap-2 items-center">
+                    <span className="font-bold">
+                      {c.user}
+                    </span>
+
+                    <span className="text-xs text-gray-400">
+                      {new Date(c.created_at).toLocaleString()}
+                    </span>
                   </div>
-                  <p className="text-gray-600 mt-1">{comment.text}</p>
+
+                  <p className="text-gray-600">
+                    {c.text}
+                  </p>
+
                 </div>
+
               </div>
             ))}
+
           </div>
+
         </div>
+
       </div>
+
     </div>
   );
-};
-
-export default ProjectDetail;
+}

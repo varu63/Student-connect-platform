@@ -4,6 +4,8 @@ from django.db import models
 from django.db import models
 from django.contrib.auth.models import User
 
+from core import settings
+
 
 class Subscription(models.Model):
 
@@ -14,7 +16,7 @@ class Subscription(models.Model):
     ]
 
     user = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="subscriptions"
     )

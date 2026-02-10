@@ -1,20 +1,13 @@
 
-
-
-// const ALL_PROJECTS = [
-//   { id: 1, title: "AI Study Assistant", tech: "Python", difficulty: "Hard", description: "A machine learning tool to summarize lecture notes." },
-//   { id: 2, title: "Portfolio Builder", tech: "React", difficulty: "Easy", description: "Drag-and-drop website builder for students." },
-//   { id: 3, title: "Banking System", tech: "Java", difficulty: "Medium", description: "Secure backend for managing student transactions." },
-//   { id: 4, title: "Game Engine", tech: "C++", difficulty: "Hard", description: "Physics-based 2D engine for indie developers." },
-//   { id: 5, title: "Task Manager", tech: "React", difficulty: "Medium", description: "Real-time collaborative task board." },
-// ];
-
 import React, { useState, useEffect } from 'react';
 import { Search, BookOpen, Code, BarChart, ChevronLeft, ChevronRight } from 'lucide-react';
 import Navbar from '../compontes/Navbar';
 import Footer from '../compontes/Footer';
+import { useNavigate } from "react-router-dom";
+
 
 const Projects = () => {
+  const navigate = useNavigate();
   // State for Data
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -68,8 +61,10 @@ const Projects = () => {
   };
 
   return (
+    <>
+    <Navbar />
     <section className="py-20 px-6 bg-gray-50 min-h-screen">
-      <Navbar />
+      
       <div className="max-w-7xl mx-auto">
         
         {/* --- Heading --- */}
@@ -153,7 +148,9 @@ const Projects = () => {
                     </div>
                   </div>
 
-                  <button className="w-full mt-8 py-3 bg-gray-900 text-white rounded-xl font-bold text-sm hover:bg-indigo-600 transition">
+                  <button 
+                    onClick={() => navigate(`/projects/${project.id}`)}
+                    className="w-full mt-8 py-3 bg-gray-900 text-white rounded-xl font-bold text-sm hover:bg-indigo-600 transition">
                     Read Discussion
                   </button>
                 </div>
@@ -191,8 +188,10 @@ const Projects = () => {
           </div>
         )}
       </div>
-      <Footer />
+    
     </section>
+      <Footer />
+    </>
   );
 };
 
