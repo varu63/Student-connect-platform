@@ -23,6 +23,7 @@ urlpatterns = [
     path("projects/", include("apps.projects.urls")),
     path('accounts/', include('apps.accounts.urls')),
     path('payments/', include('apps.payments.urls')),
+    path('mentors/', include('apps.mentors.urls')),
 ]
 
 #  password :q1w2e3r4@

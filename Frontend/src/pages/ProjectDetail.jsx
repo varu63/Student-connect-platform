@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Send } from "lucide-react";
 
-const API = "http://localhost:8000";
+const API = "http://localhost:8000/";
 
 export default function ProjectDetail() {
 
@@ -23,31 +23,33 @@ export default function ProjectDetail() {
   }, [id]);
 
   const loadData = async () => {
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-      // Fetch project
-      const projectRes = await fetch(`${API}/projects/${id}/`);
-      if (!projectRes.ok) throw new Error("Project not found");
+    const projectRes = await fetch(`${API}/projects/${id}/`);
+    if (!projectRes.ok) throw new Error("Project not found");
+    const projectData = await projectRes.json();
+    setProject(projectData);
 
-      const projectData = await projectRes.json();
-      setProject(projectData);
-
-      // Fetch comments
-      const commentRes = await fetch(
-        `${API}/comments/?project=${id}`
-      );
-
-      const commentData = await commentRes.json();
-      setComments(commentData.results || []);
-
-    } catch (err) {
-      console.error(err);
-      setError("Failed to load project");
-    } finally {
-      setLoading(false);
+    const commentRes = await fetch(`${API}/projects/comments/?project=${id}`);
+    
+    // ADD THIS CHECK:
+    if (!commentRes.ok) {
+      console.error("Comments endpoint failed:", commentRes.status);
+      setComments([]); // Set to empty array so the UI doesn't crash
+      return;
     }
-  };
+
+    const commentData = await commentRes.json();
+    setComments(commentData.results || commentData || []); // Handle different API shapes
+
+  } catch (err) {
+    console.error("Detailed Error:", err);
+    setError("Failed to load project");
+  } finally {
+    setLoading(false);
+  }
+};
 
   /* ---------------- Add Comment ---------------- */
 
@@ -57,7 +59,7 @@ export default function ProjectDetail() {
     if (!commentText.trim()) return;
 
     try {
-      const res = await fetch(`${API}/comments/`, {
+      const res = await fetch(`${API}/projects/comments/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

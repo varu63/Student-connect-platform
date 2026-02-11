@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "apps.accounts.apps.AccountsConfig",
     "apps.projects.apps.ProjectsConfig",
     "apps.payments.apps.PaymentsConfig",
+    "apps.mentors.apps.MentorsConfig",
     
 ]
 
@@ -76,6 +77,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
 ]
+
 
 ROOT_URLCONF = 'core.urls'
 

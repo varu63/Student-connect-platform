@@ -18,30 +18,30 @@ const handleSubmit = async (e) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        email: email,   // MUST be username
+        username: email,   // IMPORTANT
         password: password,
       }),
     });
 
     const data = await response.json();
 
+    console.log("LOGIN:", data);
+
     if (!response.ok) {
       alert(data.detail || "Login failed");
       return;
     }
 
-    // Save tokens
     localStorage.setItem("access", data.access);
     localStorage.setItem("refresh", data.refresh);
 
-    navigate("/discuss");
+    navigate("/profile");
 
   } catch (err) {
     console.error(err);
     alert("Server error");
   }
 };
-
 
 
   return (
