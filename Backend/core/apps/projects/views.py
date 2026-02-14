@@ -3,6 +3,7 @@ from rest_framework.pagination import PageNumberPagination
 
 from .models import Project, Comment
 from .serializers import ProjectSerializer, CommentSerializer
+from rest_framework.permissions import AllowAny
 
 
 # ---------------- Pagination ----------------
@@ -20,6 +21,7 @@ class CommentPagination(PageNumberPagination):
 # ---------------- Project ----------------
 
 class ProjectListView(generics.ListAPIView):
+    permission_classes = [AllowAny]
 
     queryset = Project.objects.all().order_by("-id")
     serializer_class = ProjectSerializer
@@ -30,7 +32,7 @@ class ProjectListView(generics.ListAPIView):
 
 
 class ProjectDetailView(generics.RetrieveAPIView):
-
+    permission_classes = [AllowAny]
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     lookup_field = "id"
@@ -39,7 +41,7 @@ class ProjectDetailView(generics.RetrieveAPIView):
 # ---------------- Comment ----------------
 
 class CommentListCreateView(generics.ListCreateAPIView):
-
+    permission_classes = [AllowAny]
     queryset = Comment.objects.all().order_by("-created_at")
     serializer_class = CommentSerializer
     pagination_class = CommentPagination

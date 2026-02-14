@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState , useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Lock, ArrowRight, Github } from 'lucide-react';
 import { useNavigate }  from 'react-router-dom';
@@ -8,40 +8,42 @@ const LoginPage =() => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+useEffect(() => {
+  if (localStorage.getItem("access")) {
+    navigate("/profile", { replace: true });
+  }
+}, []);
+
+
 const handleSubmit = async (e) => {
   e.preventDefault();
 
-  try {
-    const response = await fetch("http://localhost:8000/accounts/login/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        username: email,   // IMPORTANT
-        password: password,
-      }),
-    });
+  const res = await fetch("http://localhost:8000/accounts/login/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      email,
+      password,
+    }),
+  });
 
-    const data = await response.json();
+  const data = await res.json();
 
-    console.log("LOGIN:", data);
+  console.log(res.status, data);
 
-    if (!response.ok) {
-      alert(data.detail || "Login failed");
-      return;
-    }
-
+  if (res.ok) {
     localStorage.setItem("access", data.access);
     localStorage.setItem("refresh", data.refresh);
 
-    navigate("/profile");
-
-  } catch (err) {
-    console.error(err);
-    alert("Server error");
+    navigate("/", { replace: true });
+  } else {
+    alert(data.detail || "Login failed");
   }
 };
+
+
 
 
   return (

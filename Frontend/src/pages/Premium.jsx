@@ -66,7 +66,7 @@ export default function PremiumPage() {
     }
 
     try {
-      const response = await fetch("http://localhost:8000/api/create-order/", {
+      const response = await fetch("http://localhost:8000/payments/create-order/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -91,7 +91,7 @@ export default function PremiumPage() {
         handler: async function (response) {
           try {
             const verifyRes = await fetch(
-              "http://localhost:8000/api/verify-payment/",
+              "http://localhost:8000/payments/verify-payment/",
               {
                 method: "POST",
                 headers: {
